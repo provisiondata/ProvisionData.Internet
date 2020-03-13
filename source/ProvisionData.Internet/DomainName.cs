@@ -63,7 +63,7 @@
             if (domain[0] == '.')
                 throw new ArgumentException("Invalid: A domain name must not start with a period (.)", nameof(domain));
 
-            if (domain[^1] == '.')
+            if (domain[domain.Length - 1] == '.')
                 throw new ArgumentException("Invalid: The trailing period (.) is implied.", nameof(domain));
 
             if (IPAddress.TryParse(domain, out _))
@@ -83,7 +83,7 @@
                 labels++;
                 //var label = domain[start..end];
                 if (end - start > 63)
-                    throw new ArgumentException($"Invalid: The length of any one label is limited to between 1 and 63 octets. '{domain[start..end]}' is {end - start}", nameof(domain));
+                    throw new ArgumentException($"Invalid: The length of any one label is limited to between 1 and 63 octets. '{domain.Substring(start, end - start)}' is {end - start}", nameof(domain));
 
                 start = end + 1;
             } while (start < domain.Length);
