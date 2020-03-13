@@ -1,71 +1,95 @@
 ﻿namespace ProvisionData.Internet
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
+    using System.Net;
 
-    [SuppressMessage("Design", "CA1036:Override methods on comparable types", Justification = "Domain Names are effectively strings so CompareTo() or StringComparer is preferred over <, >, <=, >=.")]
-    public class DomainName : IEquatable<DomainName>, IComparable<DomainName>
+    public class DomainName
     {
-        public static readonly DomainName Origin = new DomainName("@");
+        private readonly String _domain;
 
-        [SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         public DomainName(String name)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
+            ThrowIfInvalid(name);
 
-            if (String.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentException("Invalid domain name.", nameof(name));
-            }
-
-            Name = name;
+            _domain = name;
         }
 
-        public String Name { get; }
+        public override Int32 GetHashCode() => _domain?.GetHashCode() ?? 0;
+
+        public override String ToString() => _domain;
 
         public Int32 CompareTo(DomainName other)
-            => String.Compare(Name, other.Name, StringComparison.InvariantCultureIgnoreCase);
-
-        public override Int32 GetHashCode()
-            => Name?.GetHashCode() ?? 0;
-
-        public override String ToString() => Name;
+            => other is null ? 1 : String.Compare(_domain, other._domain, StringComparison.InvariantCultureIgnoreCase);
 
         public Boolean Equals(DomainName other)
-            => ReferenceEquals(this, other) || Name.Equals(other.Name, StringComparison.InvariantCultureIgnoreCase);
+            => other is null ? false : _domain.Equals(other._domain, StringComparison.InvariantCultureIgnoreCase);
 
         public override Boolean Equals(Object other)
-            => other is null ? false : ReferenceEquals(this, other) || (other is DomainName domainName && Equals(domainName));
+            => other is default(Object) ? false : other is DomainName domainName && Equals(domainName);
 
-        public static implicit operator DomainName(String domainName) => new DomainName(domainName);
+        public static implicit operator DomainName(String s) => new DomainName(s);
 
-        public static DomainName FromString(String domainName) => new DomainName(domainName);
+        public static DomainName FromString(String s) => new DomainName(s);
 
-        public static implicit operator String(DomainName domainName) => domainName.Name;
+        public static implicit operator String(DomainName domainName) => domainName._domain;
 
-        public static String FromDomainName(DomainName domainName) => domainName.Name;
+        public static Boolean operator !=(DomainName a, DomainName b) => !(a == b);
 
         public static Boolean operator ==(DomainName a, DomainName b)
         {
             // If both are null, or both are same instance, return true.
             if (ReferenceEquals(a, b))
-            {
                 return true;
-            }
 
             // If one is null, but not both, return false.
             if ((a is null) || (b is null))
-            {
                 return false;
-            }
 
             // Return true if the fields match:
-            return a.Name == b.Name;
+            return a._domain == b._domain;
         }
 
-        public static Boolean operator !=(DomainName a, DomainName b) => !(a == b);
+        private static void ThrowIfInvalid(String domain)
+        {
+            if (domain is null)
+                throw new ArgumentNullException(nameof(domain));
+
+            if (String.IsNullOrWhiteSpace(domain))
+                throw new ArgumentException("Invalid: Must not be Empty or Whitespace", nameof(domain));
+
+            if (domain.Length > 255)
+                throw new ArgumentException($"Invalid: The total length of a domain must not exceed 255 octets. The '{domain}' domain is {domain.Length}.", nameof(domain));
+
+            if (domain[0] == '.')
+                throw new ArgumentException("Invalid: A domain name must not start with a period (.)", nameof(domain));
+
+            if (domain[^1] == '.')
+                throw new ArgumentException("Invalid: The trailing period (.) is implied.", nameof(domain));
+
+            if (IPAddress.TryParse(domain, out _))
+                return;
+
+            var start = 0;
+            var labels = 0;
+            do
+            {
+                var end = domain.IndexOf('.', start);
+                if (end == -1)
+                    end = domain.Length;
+
+                if (end == start)
+                    throw new ArgumentException("Invalid: A domain must not contain two consecutive periods (..)", nameof(domain));
+
+                labels++;
+                //var label = domain[start..end];
+                if (end - start > 63)
+                    throw new ArgumentException($"Invalid: The length of any one label is limited to between 1 and 63 octets. '{domain[start..end]}' is {end - start}", nameof(domain));
+
+                start = end + 1;
+            } while (start < domain.Length);
+
+            if (labels < 2)
+                throw new ArgumentException("Invalid: A domain name must consist of two or more lables separated by a period (.)", nameof(domain));
+        }
     }
 }
