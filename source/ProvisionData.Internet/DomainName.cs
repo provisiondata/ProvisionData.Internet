@@ -5,7 +5,11 @@
 
     public class DomainName
     {
+        public static readonly DomainName Empty = new DomainName();
+
         private readonly String _domain;
+
+        private DomainName() { _domain = String.Empty; }
 
         public DomainName(String name)
         {

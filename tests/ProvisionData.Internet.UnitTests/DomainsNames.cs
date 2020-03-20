@@ -52,6 +52,13 @@
         }
 
         [Fact]
+        public void Must_be_equatable_to_Empty()
+        {
+            var a = new DomainName("example.com");
+            a.Equals(DomainName.Empty).Should().Be(false);
+        }
+
+        [Fact]
         public void Must_be_equatable_to_String()
         {
             var a = new DomainName("example.com");
