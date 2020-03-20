@@ -117,7 +117,7 @@ namespace ProvisionData.Build
                     .EnableIncludeSymbols()
                     .EnableNoBuild()
                     .EnableNoRestore()
-                    .SetProperty("PackageVersion", GitVersion.NuGetVersionV2)
+                    .SetProperty("PackageVersion", GitVersion.SemVer)
                     .SetOutputDirectory(ArtifactsDirectory / "nuget")
                     .SetPackageReleaseNotes(changeLog));
            });
