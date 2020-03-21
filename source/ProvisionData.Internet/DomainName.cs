@@ -15,8 +15,11 @@
         {
             ThrowIfInvalid(name);
 
-            _domain = name;
+            _domain = Normalize(name);
         }
+
+        private static String Normalize(String domain)
+            => domain[domain.Length - 1] == '.' ? domain.Substring(0, domain.Length - 1) : domain;
 
         public override Int32 GetHashCode() => _domain?.GetHashCode() ?? 0;
 
@@ -67,8 +70,8 @@
             if (domain[0] == '.')
                 throw new ArgumentException($"Invalid DomainName ({domain}): A domain name MUST NOT start with a period (.).", nameof(domain));
 
-            if (domain[domain.Length - 1] == '.')
-                throw new ArgumentException($"Invalid DomainName ({domain}): The trailing period (.) is implied.", nameof(domain));
+            //if (domain[domain.Length - 1] == '.')
+            //    throw new ArgumentException($"Invalid DomainName ({domain}): The trailing period (.) is implied.", nameof(domain));
 
             if (IPAddress.TryParse(domain, out _))
                 return;

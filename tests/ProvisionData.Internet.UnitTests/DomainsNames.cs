@@ -107,8 +107,8 @@
             => Invoking(() => new DomainName(".example.com")).Should().Throw<ArgumentException>();
 
         [Fact]
-        public void Must_throw_ArgumentException_when_domain_ends_with_a_period()
-            => Invoking(() => new DomainName("example.com.")).Should().Throw<ArgumentException>();
+        public void Must_remove_trailing_period_when_domain_ends_with_a_period()
+            => new DomainName("example.com.").Should().Be(new DomainName("example.com"));
 
         [Fact]
         public void Must_throw_ArgumentException_when_domain_contains_two_consecutive_periods()
