@@ -59,16 +59,16 @@
                 throw new ArgumentNullException(nameof(domain));
 
             if (String.IsNullOrWhiteSpace(domain))
-                throw new ArgumentException("Invalid: Must not be Empty or Whitespace", nameof(domain));
+                throw new ArgumentException($"Invalid DomainName ({domain}): Must not be Empty or Whitespace.", nameof(domain));
 
             if (domain.Length > 255)
-                throw new ArgumentException($"Invalid: The total length of a domain must not exceed 255 octets. The '{domain}' domain is {domain.Length}.", nameof(domain));
+                throw new ArgumentException($"Invalid DomainName ({domain}): The total length of a domain must not exceed 255 octets. The '{domain}' domain is {domain.Length}.", nameof(domain));
 
             if (domain[0] == '.')
-                throw new ArgumentException("Invalid: A domain name must not start with a period (.)", nameof(domain));
+                throw new ArgumentException($"Invalid DomainName ({domain}): A domain name MUST NOT start with a period (.).", nameof(domain));
 
             if (domain[domain.Length - 1] == '.')
-                throw new ArgumentException("Invalid: The trailing period (.) is implied.", nameof(domain));
+                throw new ArgumentException($"Invalid DomainName ({domain}): The trailing period (.) is implied.", nameof(domain));
 
             if (IPAddress.TryParse(domain, out _))
                 return;
@@ -82,18 +82,18 @@
                     end = domain.Length;
 
                 if (end == start)
-                    throw new ArgumentException("Invalid: A domain must not contain two consecutive periods (..)", nameof(domain));
+                    throw new ArgumentException($"Invalid DomainName ({domain}): A domain must not contain two consecutive periods (..)", nameof(domain));
 
                 labels++;
                 //var label = domain[start..end];
                 if (end - start > 63)
-                    throw new ArgumentException($"Invalid: The length of any one label is limited to between 1 and 63 octets. '{domain.Substring(start, end - start)}' is {end - start}", nameof(domain));
+                    throw new ArgumentException($"Invalid DomainName ({domain}): The length of any one label is limited to between 1 and 63 octets. '{domain.Substring(start, end - start)}' is {end - start} octets.", nameof(domain));
 
                 start = end + 1;
             } while (start < domain.Length);
 
             if (labels < 2)
-                throw new ArgumentException("Invalid: A domain name must consist of two or more lables separated by a period (.)", nameof(domain));
+                throw new ArgumentException($"Invalid DomainName ({domain}): A domain name must consist of two or more lables separated by a period (.)", nameof(domain));
         }
     }
 }
