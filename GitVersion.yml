@@ -1,8 +1,13 @@
-mode: Mainline
+assembly-versioning-scheme: MajorMinorPatch
+mode: ContinuousDeployment
 next-version: 1.0.0
 branches:
   develop:
+    mode: ContinuousDeployment
     tag: beta
+  release:
+    mode: ContinuousDeployment
+    tag: rc
 ignore:
   sha: []
 merge-message-formats: {}
