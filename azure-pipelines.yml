@@ -32,7 +32,7 @@ steps:
     command: 'test'
     projects: 'tests/**/*.csproj'
 
-- script: dotnet pack /p:PackageVersion=$(version)  # define version variable elsewhere in your pipeline
+- script: dotnet pack
 - task: DotNetCoreCLI@2
   inputs:
     command: 'pack'
