@@ -44,7 +44,7 @@ steps:
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: '**/*.nupkg'
+    targetPath: $(System.DefaultWorkingDirectory)
     artifactName: NugetPackage
 
 #- task: NuGetAuthenticate@0
