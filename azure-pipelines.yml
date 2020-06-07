@@ -11,23 +11,50 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
+  GitVersion.SemVer: ''
 
 steps:
+- task: UseGitVersion@5
+  displayName: gitversion
+  inputs:
+    versionSpec: '5.x'
+    updateAssemblyInfo: true
+
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
     projects: 'Internet.sln'
     arguments: '--configuration $(buildConfiguration)'
+    versioningScheme: byEnvVar
+    versionEnvVar: 'GitVersion.SemVer'
 
 - task: DotNetCoreCLI@2
   inputs:
     command: 'test'
     projects: 'tests/**/*.csproj'
 
+- script: dotnet pack /p:PackageVersion=$(version)  # define version variable elsewhere in your pipeline
 - task: DotNetCoreCLI@2
   inputs:
     command: 'pack'
     packagesToPack: 'source/**/*.csproj'
     includesymbols: true
     includesource: true
-    versioningScheme: 'off'
+    versioningScheme: byEnvVar
+    versionEnvVar: 'GitVersion.SemVer'
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: $(System.DefaultWorkingDirectory)/source/ProvisionData.Internet/bin/Release/*.nupkg
+    artifactName: NugetPackage
+
+#- task: NuGetAuthenticate@0
+#  input:
+#    nuGetServiceConnections: '<Name of the NuGet service connection>'
+#- task: NuGetCommand@2
+#  inputs:
+#    command: push
+#    nuGetFeedType: external
+#    publishFeedCredentials: '<Name of the NuGet service connection>'
+#    versioningScheme: byEnvVar
+#    versionEnvVar: 'GitVersion.SemVer'
